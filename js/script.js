@@ -11,7 +11,7 @@
 
 const projects = [
   {
-    ticker: "Quant IFPE",
+    ticker: "Quant",
     description: "Scripts em Python para cálculo do índice de força relativa (RSI) e automação do download de séries históricas de ativos, aplicando conceitos de análise técnica.",
     stack: "Python, Pandas, Streamlit",
     category: "dados",
