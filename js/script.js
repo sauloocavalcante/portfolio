@@ -1,12 +1,12 @@
 /* ==========================================================================
    PORTFÓLIO — Saulo Cavalcante
-   Dados dos projetos + renderização da lista.
+   Dados dos projetos + renderização da lista + paginação.
 
    PARA ADICIONAR UM NOVO PROJETO:
    1. Copie um dos objetos abaixo dentro do array "projects".
    2. Preencha os campos (o "icon" é uma classe do Font Awesome, ex:
       "fa-solid fa-chart-line" — veja mais ícones em fontawesome.com/icons).
-   3. Salve. Ele aparece automaticamente na lista, sem mexer no HTML/CSS.
+   3. Salve. Ele aparece automaticamente na lista/paginação, sem mexer no HTML/CSS.
    ========================================================================== */
 
 const projects = [
@@ -33,8 +33,41 @@ const projects = [
     category: "dados",
     icon: "fa-solid fa-film",
     url: "https://github.com/sauloocavalcante/movies_EDA"
+  },
+  {
+    ticker: "Portfólio Melissa",
+    description: "Site de portfólio desenvolvido sob encomenda , em HTML, CSS e JavaScript puro, com páginas de categorias, conteúdos e galeria de fotos organizados em componentes reutilizáveis.",
+    stack: "HTML · CSS · JavaScript",
+    category: "dev",
+    icon: "fa-solid fa-globe",
+    url: "https://github.com/sauloocavalcante/portifolio-melissa"
+  },
+  {
+    ticker: "FinanceApp IA",
+    description: "Aplicativo de gerenciamento de finanças pessoais em Django, desenvolvido com pair programming assistido por IA.",
+    stack: "Python · Django · SQLite/PostgreSQL",
+    category: "dev",
+    icon: "fa-solid fa-wallet",
+    url: "https://github.com/sauloocavalcante/financeApp-IA"
+  },
+  {
+    ticker: "Inventory Management System",
+    description: "Sistema de gestão de estoque construído com Django, incluindo módulo de notificações e containerização com Docker para facilitar o deploy.",
+    stack: "Python · Django · Docker",
+    category: "dev",
+    icon: "fa-solid fa-warehouse",
+    url: "https://github.com/sauloocavalcante/inventory-management-system-"
   }
 ];
+
+/* ---------- Paginação ---------- */
+
+const PROJECTS_PER_PAGE = 3;
+let currentPage = 1;
+
+function getTotalPages() {
+  return Math.max(1, Math.ceil(projects.length / PROJECTS_PER_PAGE));
+}
 
 /* ---------- Renderização ---------- */
 
@@ -58,13 +91,56 @@ function createProjectRow(project) {
   return row;
 }
 
-function renderProjects() {
+function renderProjects(page = 1, { immediate = false } = {}) {
   const list = document.getElementById("project-list");
   if (!list) return;
 
-  projects.forEach((project) => {
-    list.appendChild(createProjectRow(project));
+  const totalPages = getTotalPages();
+  currentPage = Math.min(Math.max(1, page), totalPages);
+
+  list.innerHTML = "";
+
+  const start = (currentPage - 1) * PROJECTS_PER_PAGE;
+  const pageProjects = projects.slice(start, start + PROJECTS_PER_PAGE);
+
+  pageProjects.forEach((project) => {
+    const row = createProjectRow(project);
+    list.appendChild(row);
+    // Ao trocar de página via clique, mostra na hora (sem esperar rolagem)
+    if (immediate) {
+      row.classList.add("is-visible");
+    }
   });
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const container = document.getElementById("project-pagination");
+  if (!container) return;
+
+  const totalPages = getTotalPages();
+  container.innerHTML = "";
+
+  // Com 3 projetos ou menos, nem precisa mostrar os quadradinhos
+  if (totalPages <= 1) return;
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "page-btn" + (i === currentPage ? " is-active" : "");
+    btn.textContent = String(i);
+    btn.setAttribute("aria-label", `Página ${i} de projetos`);
+    if (i === currentPage) btn.setAttribute("aria-current", "page");
+
+    btn.addEventListener("click", () => {
+      if (i === currentPage) return;
+      renderProjects(i, { immediate: true });
+      document.getElementById("projetos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    container.appendChild(btn);
+  }
 }
 
 /* ---------- Ano do rodapé ---------- */
@@ -84,7 +160,7 @@ function setupScrollReveal() {
     el.classList.add("reveal");
   });
 
-  const revealElements = document.querySelectorAll(".reveal");
+  const revealElements = document.querySelectorAll(".reveal:not(.is-visible)");
 
   // Sem suporte a IntersectionObserver: mostra tudo direto, sem quebrar nada
   if (!("IntersectionObserver" in window)) {
@@ -116,7 +192,6 @@ function setupCursorGlow() {
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 
-  // Não ativa em telas de toque nem para quem pede menos movimento na tela
   if (prefersReducedMotion || !hasFinePointer) return;
 
   let mouseX = 0;
@@ -143,7 +218,6 @@ function setupCursorGlow() {
   });
 
   function animate() {
-    // Suaviza o movimento, criando um pequeno atraso ao "seguir" o cursor
     glowX += (mouseX - glowX);
     glowY += (mouseY - glowY);
     glow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0) translate(-50%, -50%)`;
@@ -156,7 +230,7 @@ function setupCursorGlow() {
 /* ---------- Inicialização ---------- */
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderProjects();
+  renderProjects(1);
   setFooterYear();
   setupScrollReveal();
   setupCursorGlow();

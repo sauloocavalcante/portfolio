@@ -1,9 +1,3 @@
-/* ==========================================================================
-   PORTFÓLIO — Saulo Cavalcante
-   Arquivo único de estilos. Cores e fontes centralizadas em :root
-   para facilitar qualquer ajuste futuro.
-   ========================================================================== */
-
 :root {
   /* Cores — paleta escura, tema "terminal/tech" */
   --bg: #090c10;
@@ -413,6 +407,43 @@ a {
   font-size: 0.8rem;
   color: var(--muted);
   margin: 0;
+}
+
+/* ---------- Paginação de projetos ---------- */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.page-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-btn:hover {
+  color: var(--accent-a);
+  border-color: var(--accent-a);
+}
+
+.page-btn.is-active {
+  color: var(--bg);
+  background: var(--accent-a);
+  border-color: var(--accent-a);
+  box-shadow: 0 0 18px var(--glow);
 }
 
 /* ---------- Responsivo ---------- */
